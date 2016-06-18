@@ -3,6 +3,9 @@ package me.dibro.salesbot;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class Database {
@@ -26,10 +29,119 @@ public class Database {
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
-        dataSource = new HikariDataSource(config);
+        this.dataSource = new HikariDataSource(config);
+
+        createTable();
     }
 
-    public Product[] getProducts(String query) {
-        return null;
+    private void createTable() {
+        try (Connection connection = dataSource.getConnection()) {
+            try (Statement statement = connection.createStatement()) {
+                statement.executeUpdate("CREATE TABLE IF NOT EXISTS `sales` (\n" +
+                        "`id` INT NOT NULL AUTO_INCREMENT,\n" +
+                        "`name` VARCHAR(128),\n" +
+                        "`descFull` VARCHAR(256),\n" +
+                        "`descShort` VARCHAR(128),\n" +
+                        "`sourceUrl` VARCHAR(128),\n" +
+                        "`sourceName` VARCHAR(128),\n" +
+                        "`inStock` TINYINT(1),\n" +
+                        "`discount` FLOAT,\n" +
+                        "`price` FLOAT,\n" +
+                        "`started` TIMESTAMP,\n" +
+                        "`duration` TIMESTAMP,\n" +
+                        "PRIMARY KEY ( `id` )\n" +
+                        ");"
+                );
+            }
+        } catch (SQLException e) {
+            SalesBot.info("Exception caught while creating table");
+            e.printStackTrace();
+        }
+    }
+
+    public Result getProducts(String query) {
+//        if (true) return new Result(new Product[]{
+//                new Product(
+//                        "Холодильник",
+//                        "Холодильник холодный и морозный",
+//                        "Холодно!",
+//                        "cold.com",
+//                        "Cold Corporation",
+//                        true,
+//                        0.5f,
+//                        3000.0f,
+//                        0L,
+//                        1000000000000000000L
+//                ),
+//                new Product(
+//                        "Утюг",
+//                        "Утюг ровный и четкий",
+//                        "Ровно!",
+//                        "smooth.com",
+//                        "Smooth Corporation",
+//                        true,
+//                        0.5f,
+//                        2000.0f,
+//                        0L,
+//                        1000000000000000000L
+//                ),
+//                new Product(
+//                        "Кофемашина",
+//                        "Кофемашина качественно и быстро",
+//                        "Качественно!",
+//                        "coffee.com",
+//                        "Coffee Corporation",
+//                        true,
+//                        0.5f,
+//                        1500.0f,
+//                        0L,
+//                        1000000000000000000L
+//                ),
+//                new Product(
+//                        "Ноутбук",
+//                        "Ноутбук компактный и мощный",
+//                        "Ноутбук",
+//                        "notebook.com",
+//                        "Notebook Corporation",
+//                        true,
+//                        0.5f,
+//                        5000.0f,
+//                        0L,
+//                        1000000000000000000L
+//                ),
+//        });
+
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "SELECT * FROM `sales` WHERE `name`=?")) {
+                statement.setString(1, query);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        List<Product> list = new ArrayList<>();
+                        do {
+                            int idx = 2;
+                            list.add(new Product(
+                                    resultSet.getString(idx++),
+                                    resultSet.getString(idx++),
+                                    resultSet.getString(idx++),
+                                    resultSet.getString(idx++),
+                                    resultSet.getString(idx++),
+                                    resultSet.getBoolean(idx++),
+                                    resultSet.getFloat(idx++),
+                                    resultSet.getFloat(idx++),
+                                    resultSet.getLong(idx++),
+                                    resultSet.getLong(idx)
+                            ));
+                        } while (resultSet.next());
+                        return new Result(list.toArray(new Product[list.size()]));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            SalesBot.info("Exception caught while getting products");
+            e.printStackTrace();
+        }
+
+        return new Result(new Product[0]);
     }
 }
