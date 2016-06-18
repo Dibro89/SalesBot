@@ -13,15 +13,22 @@ import java.util.Properties;
 public class SalesBot extends TelegramLongPollingBot {
     private static final File propertiesFile = new File("config.properties");
 
+    private String botUsername;
+    private String botToken;
+
     private Properties properties;
     private Database database;
 
     public SalesBot() {
-        loadProperties();
+        if (!loadProperties()) return;
+
+        botUsername = properties.getProperty("botUsername");
+        botToken = properties.getProperty("botToken");
+
         database = new Database(this);
     }
 
-    private void loadProperties() {
+    private boolean loadProperties() {
         properties = new Properties();
 
         properties.setProperty("dataBaseHost", "");
@@ -30,11 +37,12 @@ public class SalesBot extends TelegramLongPollingBot {
         properties.setProperty("dataBaseUser", "");
         properties.setProperty("dataBasePassword", "");
 
-        properties.setProperty("botUserName", "");
+        properties.setProperty("botUsername", "");
         properties.setProperty("botToken", "");
 
         try {
             properties.load(new FileReader(propertiesFile));
+            return true;
         } catch (FileNotFoundException e) {
             System.out.println("Error: " + propertiesFile.getName() + " not found! Creating a new one.");
             System.out.println("Please configure it and try again.");
@@ -49,6 +57,8 @@ public class SalesBot extends TelegramLongPollingBot {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return false;
     }
 
     private void handleTextMessage(Message message) {
@@ -57,7 +67,6 @@ public class SalesBot extends TelegramLongPollingBot {
 
         Product[] products = database.getProducts(text);
         if (products.length > 0) {
-
         } else sendTextMessage(chatId, "");
     }
 
@@ -81,12 +90,12 @@ public class SalesBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return properties.getProperty("botUserName");
+        return botUsername;
     }
 
     @Override
     public String getBotToken() {
-        return properties.getProperty("botToken");
+        return botToken;
     }
 
     public Properties getProperties() {
