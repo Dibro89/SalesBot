@@ -44,7 +44,7 @@ public class SalesBot extends TelegramLongPollingBot {
             properties.load(new FileReader(propertiesFile));
             return true;
         } catch (FileNotFoundException e) {
-            System.out.println("Error: " + propertiesFile.getName() + " not found! Creating a new one.");
+            System.out.println("Error: " + propertiesFile.getName() + " does not exist. Creating a new one.");
             System.out.println("Please configure it and try again.");
 
             try {
@@ -65,13 +65,16 @@ public class SalesBot extends TelegramLongPollingBot {
         String chatId = message.getChatId().toString();
         String text = message.getText();
 
-        Product[] products = database.getProducts(text);
-        if (products.length > 0) {
-        } else sendTextMessage(chatId, "");
+        sendTextMessage(chatId, new StringBuilder(text).reverse().toString());
+
+//        Product[] products = database.getProducts(text);
+//        if (products.length > 0) {
+//        } else sendTextMessage(chatId, "");
     }
 
     private void sendTextMessage(String chatId, String text) {
         SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
         sendMessage.setText(text);
 
         try {
