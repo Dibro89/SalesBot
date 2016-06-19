@@ -93,6 +93,7 @@ public class SalesBot extends TelegramLongPollingBot {
         if (result != null) {
             SendMessage send = new SendMessage();
             send.enableMarkdown(true);
+            send.disableWebPagePreview();
 
             send.setText(prettyPrint(result.next()));
 
@@ -145,6 +146,7 @@ public class SalesBot extends TelegramLongPollingBot {
 
         EditMessageText edit = new EditMessageText();
         edit.enableMarkdown(true);
+        edit.disableWebPagePreview();
 
         if (result != null) {
             Product product = b ? result.back() : result.next();
