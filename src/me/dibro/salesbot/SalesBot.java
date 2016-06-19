@@ -17,7 +17,9 @@ import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboar
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +36,7 @@ public class SalesBot extends TelegramLongPollingBot {
     private Cache<String, Result> cache;
 
     public SalesBot() {
-        if (!loadProperties()) return;
+        if (!loadProperties()) System.exit(0);
 
         this.botUsername = properties.getProperty("botUsername");
         this.botToken = properties.getProperty("botToken");
@@ -78,7 +80,6 @@ public class SalesBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        info(update);
         if (update.hasMessage() && update.getMessage().hasText())
             handleTextMessage(update.getMessage());
         if (update.hasCallbackQuery())
@@ -92,8 +93,9 @@ public class SalesBot extends TelegramLongPollingBot {
         Result result = database.getProducts(text);
         if (result.hasNext()) {
             SendMessage send = new SendMessage();
+            send.enableMarkdown(true);
 
-            send.setText(result.next().toString());
+            send.setText(prettyPrint(result.next()));
 
             InlineKeyboardMarkup markup = setupMarkup(result);
             if (markup != null) send.setReplayMarkup(markup);
@@ -140,10 +142,11 @@ public class SalesBot extends TelegramLongPollingBot {
                 message.getChatId(), message.getMessageId()));
 
         EditMessageText edit = new EditMessageText();
+        edit.enableMarkdown(true);
 
         if (result != null) {
             Product product = b ? result.back() : result.next();
-            edit.setText(product.toString());
+            edit.setText(prettyPrint(product));
 
             InlineKeyboardMarkup markup = setupMarkup(result);
             if (markup != null) edit.setReplyMarkup(markup);
@@ -195,6 +198,32 @@ public class SalesBot extends TelegramLongPollingBot {
         markup.setKeyboard(rows);
 
         return markup;
+    }
+
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+
+    private String prettyPrint(Product product) {
+        return "*Name:*\n" +
+                product.getName() +
+                "\n*Short description:*\n" +
+                product.getDescShort() +
+                "\n*Source:*\n" +
+                product.getSourceName() +
+                '\n' +
+                product.getSourceUrl() +
+                "\n*In stock:*\n" +
+                (product.isInStock() ? "Yes" : "No") +
+                "\n*Discount:*\n" +
+                Float.toString(product.getDiscount()) +
+                "\n*Price:*\n" +
+                Float.toString(product.getPrice()) +
+                "\n*Description:*\n" +
+                product.getDescFull() +
+                "\n*Started:*\n" +
+                dateFormat.format(new Date(product.getStarted())) +
+                "\n*Duration:*\n" +
+                TimeUnit.MILLISECONDS.toDays(product.getDuration()) +
+                " days";
     }
 
     public Properties getProperties() {
