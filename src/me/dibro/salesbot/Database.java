@@ -45,12 +45,12 @@ public class Database {
                         "`sourceUrl` VARCHAR(128),\n" +
                         "`sourceName` VARCHAR(128),\n" +
                         "`inStock` TINYINT(1),\n" +
-                        "`discount` FLOAT,\n" +
-                        "`price` FLOAT,\n" +
-                        "`started` TIMESTAMP,\n" +
-                        "`duration` TIMESTAMP,\n" +
+                        "`discount` SMALLINT,\n" +
+                        "`price` SMALLINT,\n" +
+                        "`started` VARCHAR(32),\n" +
+                        "`duration` SMALLINT,\n" +
                         "PRIMARY KEY ( `id` )\n" +
-                        ");"
+                        ") DEFAULT CHARSET=utf8;"
                 );
             }
         } catch (SQLException e) {
@@ -60,60 +60,9 @@ public class Database {
     }
 
     public Result getProducts(String query) {
-//        if (true) return new Result(new Product[]{
-//                new Product(
-//                        "Холодильник",
-//                        "Холодильник холодный и морозный",
-//                        "Холодно!",
-//                        "cold.com",
-//                        "Cold Corporation",
-//                        true,
-//                        0.5f,
-//                        3000.0f,
-//                        0L,
-//                        1000000000000000000L
-//                ),
-//                new Product(
-//                        "Утюг",
-//                        "Утюг ровный и четкий",
-//                        "Ровно!",
-//                        "smooth.com",
-//                        "Smooth Corporation",
-//                        true,
-//                        0.5f,
-//                        2000.0f,
-//                        0L,
-//                        1000000000000000000L
-//                ),
-//                new Product(
-//                        "Кофемашина",
-//                        "Кофемашина качественно и быстро",
-//                        "Качественно!",
-//                        "coffee.com",
-//                        "Coffee Corporation",
-//                        true,
-//                        0.5f,
-//                        1500.0f,
-//                        0L,
-//                        1000000000000000000L
-//                ),
-//                new Product(
-//                        "Ноутбук",
-//                        "Ноутбук компактный и мощный",
-//                        "Ноутбук",
-//                        "notebook.com",
-//                        "Notebook Corporation",
-//                        true,
-//                        0.5f,
-//                        5000.0f,
-//                        0L,
-//                        1000000000000000000L
-//                ),
-//        });
-
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "SELECT * FROM `sales` WHERE `name`=?")) {
+                    "SELECT * FROM `sales` WHERE `name`=?;")) {
                 statement.setString(1, query);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
@@ -127,10 +76,10 @@ public class Database {
                                     resultSet.getString(idx++),
                                     resultSet.getString(idx++),
                                     resultSet.getBoolean(idx++),
-                                    resultSet.getFloat(idx++),
-                                    resultSet.getFloat(idx++),
-                                    resultSet.getLong(idx++),
-                                    resultSet.getLong(idx)
+                                    resultSet.getInt(idx++),
+                                    resultSet.getInt(idx++),
+                                    resultSet.getString(idx++),
+                                    resultSet.getInt(idx)
                             ));
                         } while (resultSet.next());
                         return new Result(list.toArray(new Product[list.size()]));
@@ -142,6 +91,6 @@ public class Database {
             e.printStackTrace();
         }
 
-        return new Result(new Product[0]);
+        return null;
     }
 }

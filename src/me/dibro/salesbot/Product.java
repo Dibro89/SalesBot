@@ -7,13 +7,13 @@ public class Product {
     private String sourceUrl;
     private String sourceName;
     private boolean inStock;
-    private float discount;
-    private float price;
-    private long started;
-    private long duration;
+    private int discount;
+    private int price;
+    private String started;
+    private int duration;
 
     public Product(String name, String descFull, String descShort, String sourceUrl, String sourceName,
-                   boolean inStock, float discount, float price, long started, long duration) {
+                   boolean inStock, int discount, int price, String started, int duration) {
         this.name = name;
         this.descFull = descFull;
         this.descShort = descShort;
@@ -50,19 +50,19 @@ public class Product {
         return inStock;
     }
 
-    public float getDiscount() {
+    public int getDiscount() {
         return discount;
     }
 
-    public float getPrice() {
+    public int getPrice() {
         return price;
     }
 
-    public long getStarted() {
+    public String getStarted() {
         return started;
     }
 
-    public long getDuration() {
+    public int getDuration() {
         return duration;
     }
 

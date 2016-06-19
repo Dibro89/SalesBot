@@ -17,17 +17,14 @@ import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboar
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class SalesBot extends TelegramLongPollingBot {
-    private static final File propertiesFile = new File("config.properties");
-
-    public static final Logger logger = LoggerFactory.getLogger("SalesBot");
+    public static final Logger LOGGER = LoggerFactory.getLogger("SalesBot");
+    public static final File PROPERTIES_FILE = new File("config.properties");
 
     private String botUsername;
     private String botToken;
@@ -59,16 +56,16 @@ public class SalesBot extends TelegramLongPollingBot {
         properties.setProperty("botToken", "");
 
         try {
-            properties.load(new FileReader(propertiesFile));
+            properties.load(new FileReader(PROPERTIES_FILE));
             return true;
         } catch (FileNotFoundException e) {
-            info(propertiesFile.getName() + " does not exist. Creating a new one.");
+            info(PROPERTIES_FILE.getName() + " does not exist. Creating a new one.");
             info("Please configure it and try again.");
 
             try {
-                properties.store(new FileWriter(propertiesFile), "SalesBot config");
+                properties.store(new FileWriter(PROPERTIES_FILE), "SalesBot config");
             } catch (IOException ex) {
-                info("\nException caught while creating " + propertiesFile.getName());
+                info("Exception caught while creating " + PROPERTIES_FILE.getName());
                 ex.printStackTrace();
             }
         } catch (IOException e) {
@@ -91,7 +88,7 @@ public class SalesBot extends TelegramLongPollingBot {
         String text = message.getText();
 
         Result result = database.getProducts(text);
-        if (result.hasNext()) {
+        if (result != null) {
             SendMessage send = new SendMessage();
             send.enableMarkdown(true);
 
@@ -103,8 +100,11 @@ public class SalesBot extends TelegramLongPollingBot {
             send.setChatId(chatId);
             try {
                 Message sent = sendMessage(send);
-                if (markup != null) cache.put(String.format("%d:%d",
-                        sent.getChatId(), sent.getMessageId()), result);
+                if (markup != null) {
+                    String format = String.format("%d:%d",
+                            sent.getChatId(), sent.getMessageId());
+                    cache.put(format, result);
+                }
             } catch (TelegramApiException e) {
                 info("Exception caught while sending message");
                 e.printStackTrace();
@@ -200,8 +200,6 @@ public class SalesBot extends TelegramLongPollingBot {
         return markup;
     }
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
-
     private String prettyPrint(Product product) {
         return "*Name:*\n" +
                 product.getName() +
@@ -214,15 +212,15 @@ public class SalesBot extends TelegramLongPollingBot {
                 "\n*In stock:*\n" +
                 (product.isInStock() ? "Yes" : "No") +
                 "\n*Discount:*\n" +
-                Float.toString(product.getDiscount()) +
+                product.getDiscount() +
                 "\n*Price:*\n" +
-                Float.toString(product.getPrice()) +
+                product.getPrice() +
                 "\n*Description:*\n" +
                 product.getDescFull() +
                 "\n*Started:*\n" +
-                dateFormat.format(new Date(product.getStarted())) +
+                product.getStarted() +
                 "\n*Duration:*\n" +
-                TimeUnit.MILLISECONDS.toDays(product.getDuration()) +
+                product.getDuration() +
                 " days";
     }
 
@@ -241,7 +239,7 @@ public class SalesBot extends TelegramLongPollingBot {
     }
 
     public static void info(Object object) {
-        logger.info(object.toString());
+        LOGGER.info(object.toString());
     }
 
     public static void main(String[] args) {
