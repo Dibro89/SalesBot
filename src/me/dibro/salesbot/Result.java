@@ -27,6 +27,14 @@ public class Result {
         return products[--idx];
     }
 
+    public int getTotal() {
+        return products.length;
+    }
+
+    public int getCurrent() {
+        return idx;
+    }
+
     @Override
     public String toString() {
         return "Result{" +

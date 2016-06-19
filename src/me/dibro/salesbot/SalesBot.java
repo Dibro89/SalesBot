@@ -184,14 +184,14 @@ public class SalesBot extends TelegramLongPollingBot {
 
         if (back) {
             InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText("Back");
+            button.setText("Back " + (result.getCurrent()) + "/" + result.getTotal());
             button.setCallbackData("back");
             row.add(button);
         }
 
         if (next) {
             InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText("Next");
+            button.setText("Next " + (result.getCurrent() + 2) + "/" + result.getTotal());
             button.setCallbackData("next");
             row.add(button);
         }
@@ -215,6 +215,7 @@ public class SalesBot extends TelegramLongPollingBot {
                 (product.isInStock() ? "Yes" : "No") +
                 "\n*Discount:*\n" +
                 product.getDiscount() +
+                '%' +
                 "\n*Price:*\n" +
                 product.getPrice() +
                 "\n*Description:*\n" +

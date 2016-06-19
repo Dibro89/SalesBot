@@ -65,7 +65,7 @@ public class Database {
                     "SELECT * FROM `sales` WHERE " +
                             "`name` LIKE ? OR " +
                             "`descShort` LIKE ? OR " +
-                            "`descFull` LIKE ?;")) {
+                            "`descFull` LIKE ? ORDER BY `price` ASC;")) {
                 query = String.format("%%%s%%", query);
 
                 statement.setString(1, query);
@@ -85,7 +85,7 @@ public class Database {
     public Result getAllProducts() {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "SELECT * FROM `sales`")) {
+                    "SELECT * FROM `sales` ORDER BY `price` ASC;")) {
                 return buildProduct(statement);
             }
         } catch (SQLException e) {
