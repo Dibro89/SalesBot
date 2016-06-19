@@ -71,31 +71,52 @@ public class Database {
                 statement.setString(1, query);
                 statement.setString(2, query);
                 statement.setString(3, query);
-                try (ResultSet resultSet = statement.executeQuery()) {
-                    if (resultSet.next()) {
-                        List<Product> list = new ArrayList<>();
-                        do {
-                            int idx = 2;
-                            list.add(new Product(
-                                    resultSet.getString(idx++),
-                                    resultSet.getString(idx++),
-                                    resultSet.getString(idx++),
-                                    resultSet.getString(idx++),
-                                    resultSet.getString(idx++),
-                                    resultSet.getBoolean(idx++),
-                                    resultSet.getInt(idx++),
-                                    resultSet.getInt(idx++),
-                                    resultSet.getString(idx++),
-                                    resultSet.getInt(idx)
-                            ));
-                        } while (resultSet.next());
-                        return new Result(list.toArray(new Product[list.size()]));
-                    }
-                }
+
+                return buildProduct(statement);
             }
         } catch (SQLException e) {
             SalesBot.info("Exception caught while getting products");
             e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public Result getAllProducts() {
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "SELECT * FROM `sales`")) {
+                return buildProduct(statement);
+            }
+        } catch (SQLException e) {
+            SalesBot.info("Exception caught while getting products");
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private Result buildProduct(PreparedStatement statement) throws SQLException {
+        try (ResultSet resultSet = statement.executeQuery()) {
+            if (resultSet.next()) {
+                List<Product> list = new ArrayList<>();
+                do {
+                    int idx = 2;
+                    list.add(new Product(
+                            resultSet.getString(idx++),
+                            resultSet.getString(idx++),
+                            resultSet.getString(idx++),
+                            resultSet.getString(idx++),
+                            resultSet.getString(idx++),
+                            resultSet.getBoolean(idx++),
+                            resultSet.getInt(idx++),
+                            resultSet.getInt(idx++),
+                            resultSet.getString(idx++),
+                            resultSet.getInt(idx)
+                    ));
+                } while (resultSet.next());
+                return new Result(list.toArray(new Product[list.size()]));
+            }
         }
 
         return null;

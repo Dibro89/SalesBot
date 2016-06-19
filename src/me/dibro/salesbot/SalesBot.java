@@ -87,7 +87,9 @@ public class SalesBot extends TelegramLongPollingBot {
         String chatId = message.getChatId().toString();
         String text = message.getText();
 
-        Result result = database.getProducts(text);
+        Result result = text.equalsIgnoreCase("/list")
+                ? database.getAllProducts() : database.getProducts(text);
+
         if (result != null) {
             SendMessage send = new SendMessage();
             send.enableMarkdown(true);
