@@ -62,8 +62,15 @@ public class Database {
     public Result getProducts(String query) {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "SELECT * FROM `sales` WHERE `name`=?;")) {
+                    "SELECT * FROM `sales` WHERE " +
+                            "`name` LIKE ? OR " +
+                            "`descShort` LIKE ? OR " +
+                            "`descFull` LIKE ?;")) {
+                query = String.format("%%%s%%", query);
+
                 statement.setString(1, query);
+                statement.setString(2, query);
+                statement.setString(3, query);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
                         List<Product> list = new ArrayList<>();
