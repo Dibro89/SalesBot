@@ -72,7 +72,7 @@ public class Database {
                 statement.setString(2, query);
                 statement.setString(3, query);
 
-                return buildProduct(statement);
+                return buildResult(statement);
             }
         } catch (SQLException e) {
             SalesBot.info("Exception caught while getting products");
@@ -86,17 +86,17 @@ public class Database {
         try (Connection connection = dataSource.getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "SELECT * FROM `sales` ORDER BY `price` ASC;")) {
-                return buildProduct(statement);
+                return buildResult(statement);
             }
         } catch (SQLException e) {
-            SalesBot.info("Exception caught while getting products");
+            SalesBot.info("Exception caught while getting all products");
             e.printStackTrace();
         }
 
         return null;
     }
 
-    private Result buildProduct(PreparedStatement statement) throws SQLException {
+    private Result buildResult(PreparedStatement statement) throws SQLException {
         try (ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next()) {
                 List<Product> list = new ArrayList<>();

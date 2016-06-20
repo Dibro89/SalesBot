@@ -151,9 +151,7 @@ public class SalesBot extends TelegramLongPollingBot {
         if (result != null) {
             Product product = b ? result.back() : result.next();
             edit.setText(prettyPrint(product));
-
-            InlineKeyboardMarkup markup = setupMarkup(result);
-            if (markup != null) edit.setReplyMarkup(markup);
+            edit.setReplyMarkup(setupMarkup(result));
         } else edit.setText("Session expired.");
 
         edit.setChatId(message.getChatId().toString());
