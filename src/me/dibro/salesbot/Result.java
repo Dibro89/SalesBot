@@ -15,7 +15,7 @@ public class Result {
         return idx + 1 < products.length;
     }
 
-    public boolean hasBack() {
+    public boolean hasPrev() {
         return idx - 1 >= 0;
     }
 
@@ -23,7 +23,7 @@ public class Result {
         return products[++idx];
     }
 
-    public Product back() {
+    public Product prev() {
         return products[--idx];
     }
 

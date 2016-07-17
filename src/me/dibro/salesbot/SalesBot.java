@@ -129,7 +129,7 @@ public class SalesBot extends TelegramLongPollingBot {
     private void handleCallbackQuery(CallbackQuery callback) {
         boolean b;
         switch (callback.getData()) {
-            case "back":
+            case "prev":
                 b = true;
                 break;
             case "next":
@@ -149,7 +149,7 @@ public class SalesBot extends TelegramLongPollingBot {
         edit.disableWebPagePreview();
 
         if (result != null) {
-            Product product = b ? result.back() : result.next();
+            Product product = b ? result.prev() : result.next();
             edit.setText(prettyPrint(product));
             edit.setReplyMarkup(setupMarkup(result));
         } else edit.setText("Session expired.");
@@ -174,18 +174,18 @@ public class SalesBot extends TelegramLongPollingBot {
     }
 
     private InlineKeyboardMarkup setupMarkup(Result result) {
-        boolean back = result.hasBack(), next = result.hasNext();
+        boolean prev = result.hasPrev(), next = result.hasNext();
 
-        if (!back && !next) return null;
+        if (!prev && !next) return null;
 
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
         List<InlineKeyboardButton> row = new ArrayList<>();
 
-        if (back) {
+        if (prev) {
             InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText("Back " + (result.getCurrent()) + "/" + result.getTotal());
-            button.setCallbackData("back");
+            button.setText("Prev " + (result.getCurrent()) + "/" + result.getTotal());
+            button.setCallbackData("prev");
             row.add(button);
         }
 
